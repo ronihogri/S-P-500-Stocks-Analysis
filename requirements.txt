@@ -1,7 +1,11 @@
 This program was written in python3.9
 
 The following libraries need to be installed:
-bs4
-dateutil
+BeautifulSoup
+argparse
+datetime,
 pandas
+relativedelta
 requests
+sqlite3
+subprocess
