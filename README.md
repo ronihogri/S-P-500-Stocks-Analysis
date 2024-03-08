@@ -1,5 +1,5 @@
 # S&P 500 Stocks Analysis
-S&amp;P 500 stocks analysis - RESTful API, SQLite, data analysis, visualization and ML-based predictions with python.
+S&amp;P 500 stocks analysis - RESTful API, SQLite, data analysis, visualization and ML-based predictions with python.  
 Roni Hogri, March 2024.  
 
   
