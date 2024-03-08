@@ -24,15 +24,15 @@ Output when running 'populate_SQL.py' for the first time - the program creates a
 
   
   
-  Output after running 'populate_SQL.py' the Nth time (all tables already exist):  
+  <br><br>Output after running 'populate_SQL.py' the Nth time (all tables already exist):  
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/API_requests_exceeded_2.png)<br><br>  
 
   
   
-  The 'Stocks' table containing basic info for all stocks:  
+  <br><br>The 'Stocks' table containing basic info for all stocks:  
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/stocks_list_sql.png)<br><br>  
 
     
-    An example of a table contaninig historical data on the GOOGL stock (DailyChange refers to change in % compared to the previous day):  
+  <br><br>An example of a table containinig historical data on the GOOGL stock (DailyChange refers to change in % compared to the previous day):  
  <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/example_GOOGL.png)<br><br>
 
