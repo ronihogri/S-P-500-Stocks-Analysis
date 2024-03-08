@@ -5,7 +5,7 @@ This script scrapes the wikipedia page containng a list of S&P 500 companies to 
 This info is then exported to an SQLite file, which is then used by other programs in this package. 
 '''
 
-#import libraries for global use:
+#import libraries:
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -27,7 +27,7 @@ soup = BeautifulSoup(content, 'html.parser')
 
 #get relevant table from scraping:
 tables = soup('table')
-stocks_table = [table for i, table in enumerate(tables) if 'Date added' in table.get_text()] 
+stocks_table = [table for table in tables if 'Date added' in table.get_text()] 
 assert len(stocks_table) == 1, "More than one table fits criterion - check!!"
 stocks_table = stocks_table[0]
 
