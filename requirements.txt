@@ -3,7 +3,7 @@ This program was written in python3.9
 The following libraries need to be installed:
 BeautifulSoup
 argparse
-datetime,
+datetime
 pandas
 relativedelta
 requests
