@@ -30,6 +30,6 @@ Output after running 'populate_SQL.py' the Nth time (all tables already exist):
 The 'Stocks' table containing basic info for all stocks:  
 ![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/stocks_list_sql.png)  
 
-  An example of a table containig historical data on the GOOGL stock (DailyChange refers to change in % compared to the previous day):  
+  An example of a table contaninig historical data on the GOOGL stock (DailyChange refers to change in % compared to the previous day):  
   ![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/example_GOOGL.png)
 
