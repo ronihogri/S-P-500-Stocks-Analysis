@@ -296,7 +296,7 @@ def main() :
     global latest_date_dict, historical_period, sqlite_file_path, wikipedia_url, conn, cur
 
     scraping_script = 'get_snp_symbols.py' #script to scrape basic info for S&P 500 stocks from wikipedia and store it in the SQLite database
-    inserted_count = 0 #counters for tables populated and tables that have already been previously filled, respectively
+    inserted_count = 0 #counter for tables populated during this run
     play_nice = 5 #delay (s) to play nice with API
 
     symbols = get_stock_list_from_sql(scraping_script) #get symbols of stocks for which to get historical data from existing SQLite table produced by the scraping script
