@@ -18,10 +18,14 @@ This key should be inserted as a string in the file 'alpha_vantage_key.py' inste
 
 
 """User-definable variables; modify as necessary:"""
+
 latest_date_dict = {'year': 2024, 'month': 3, 'day': 5} #this is the latest date for which data will be stored. 
 historical_period = {'years' : 5, 'months': 0, 'days': 0} #duration of historical period for which to retrieve data.
-#Note1: For latest_date_dict and historical_period, the same values should be used in multiple runs - this will ensure consistency in subsequent analyses. 
-#Note2: Remember that for each stock, data can only be retrieved starting from when this stock was issued.
+'''
+Note1: For latest_date_dict and historical_period, the same values should be used in multiple runs - this will ensure consistency in subsequent analyses. 
+Note2: Making the historical period very long can result in a large database, as well as differences in data duration for different stocks, 
+depending on their issuing dates. 
+'''
 sqlite_file_path = './S&P 500.sqlite' #path of SQLite file created by get_snp_symbols.py
 wikipedia_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies' #URL of wikipedia page containing list of S&P 500 companies
 
