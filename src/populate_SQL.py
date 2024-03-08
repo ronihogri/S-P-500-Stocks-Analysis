@@ -11,10 +11,9 @@ For additional information on the API, see:
 https://www.alphavantage.co/documentation/
 https://www.alphavantage.co/support/#support
 
-**IMPORTANT NOTES:**
+**IMPORTANT NOTE:**
 In order for the program to work, you have to get a free API key from: https://www.alphavantage.co/support/#api-key
 This key should be inserted as a string in the file 'alpha_vantage_key.py' instead of 'place_your_key_here'.
-The files 'alpha_vantage_key.py' and 'get_snp_symbols.py' have to be stored in the same directory as this program. 
 '''
 
 
@@ -34,7 +33,6 @@ import requests
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import sqlite3
-import pandas as pd
 import time
 import sys
 import argparse
@@ -100,7 +98,7 @@ def get_stock_list_from_sql(scraping_script) :
             else: #no error in running scraping_script
                 print(result.stdout) #display output of scraping_script
 
-        #import stock info to pd df and extract stock symbols
+        #import stock info list
         cur.execute("SELECT Symbol FROM Stocks")
         symbols = [row[0] for row in cur.fetchall()]       
         
@@ -163,7 +161,7 @@ def create_sql_table_per_stock(symbols) :
     if counter > 0: #were new tables created in this run?
         print(f'{counter} new tables created.')
     
-    print(f'SQL database contains a total of {num_tables} tables, including the "Stocks" table + historical data for {len(symbols)-1} stocks and for the S&P 500 index.\n')
+    print(f'SQL database contains a total of {num_tables} tables, including the "Stocks" table + historical data for {len(symbols)} stocks.\n')
 
     
 
@@ -360,4 +358,3 @@ def main() :
 """Run program:"""
 if __name__ == "__main__": 
     main() 
-    
