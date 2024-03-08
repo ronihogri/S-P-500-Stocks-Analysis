@@ -33,6 +33,6 @@ Output when running 'populate_SQL.py' for the first time - the program creates a
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/stocks_list_sql.png)<br><br>  
 
     
-  <br><br>An example of a table containinig historical data on the GOOGL stock (table head and tail are shown on the left and right, respectively; DailyChange refers to change in % compared to the previous day):  
+  <br><br>An example of a table containinig historical data (5 year period) for the stock with the symbol 'GOOGL' (table head and tail are shown on the left and right, respectively; DailyChange refers to change in % compared to the previous day):  
  <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/example_GOOGL.png)<br><br>
 
