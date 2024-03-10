@@ -231,7 +231,6 @@ def extract_data(data, earliest_date_str, latest_date_str):
         volumes (list): A list of the trading volumes of a stock for each trading day in data.     
     """
 
-    meta_data = data['Meta Data']
     timeseries = data['Time Series (Daily)']
 
     #lists of data
