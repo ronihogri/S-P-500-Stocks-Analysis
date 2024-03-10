@@ -38,7 +38,7 @@ rows = stocks_table('tr')
 column_titles = []
 title_cells = rows[0]('th')
 for cell in title_cells:
-    column_title = re.sub(r"[ -]", "_", cell.get_text().strip()) #replace spaces and hyphens w underscore to be more SQL-friendly
+    column_title = re.sub(r"[ -]", "_", cell.get_text().strip()) #replace spaces and hyphens of column titles w underscore to be more SQL-friendly
     column_titles.append(column_title)
     
 #make pandas DataFrame with columns named after column titles:
@@ -46,10 +46,12 @@ df = pd.DataFrame(columns=column_titles)
 
 #for each row (except for column titles), get values and add them to the relevant cells in df
 for row in rows[1:] : #for each row
-    values = [value.get_text().strip() for value in row('td')] #values per row
+    values = [value.get_text().strip() for value in row('td')] #values per row 
     try:
         df.loc[len(df)] = values #if data fits, fill this row in the df
     except: pass
+        
+df.Symbol = df.Symbol.str.replace('.', '-') #for stock symbols, '.' is replaced by '-' to conform w API       
         
 #export df to sqlite file:
 with sqlite3.connect(sqlite_file_path) as conn :
@@ -58,9 +60,3 @@ with sqlite3.connect(sqlite_file_path) as conn :
         print(f'\nSQL table with basic info on stocks included in the S&P 500 successfully created - table includes {len(df)} stocks.')
     except Exception as e:
         print(f'Error encountered : {e}')
-
-
-
-
-
-
