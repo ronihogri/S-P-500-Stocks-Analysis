@@ -320,11 +320,12 @@ def main() :
         if 'Information' in data : #data not retrieved for this stock - API request limits exceeded - notify user and terminate this program. 
             print(f'\n{data["Information"]}\n')            
             break
-        
-        dates, opens, closes, lows, highs, volumes = extract_data(data, earliest_date_str, latest_date_str) #get API data as lists that can be unpacked into the SQLite file
-
-        print(f'Historical data for stock with symbol "{symbol}" inserted into SQL database.')
-        
+        elif 'Error Message' in data :
+            print(f'Error encountered for stock with symbol "{symbol}": {data["Error Message"]} - stock skipped.\n')
+            continue #skip to next symbol
+        else :
+            dates, opens, closes, lows, highs, volumes = extract_data(data, earliest_date_str, latest_date_str) #get API data as lists that can be unpacked into the SQLite file
+                    
         while True :
             try: 
                 #unpack raw data from the API to the SQLite database, to be further processed later:
@@ -334,6 +335,7 @@ def main() :
                 in zip(dates, opens, closes, lows, highs, volumes)])
                 inserted_count += 1 
                 conn.commit() #save changes to SQLite file after updating each stock table
+                print(f'Historical data for stock with symbol "{symbol}" inserted into SQL database.')
                 break
             except Exception as e :
                 if 'database is locked' in str(e) :
@@ -357,8 +359,7 @@ def main() :
     if len(stock_tables_with_data) == len(symbols) : #has data already been retrieved for all stocks in S&P 500 index?
         print('SQLite database contains info on all stocks in the S&P 500 index.\n')
     
-    
 
 """Run program:"""
-if __name__ == "__main__": 
-    main() 
+if __name__ == "__main__":     
+    main()
