@@ -321,7 +321,7 @@ def main() :
             print(f'\n{data["Information"]}\n')            
             break
         elif 'Error Message' in data :
-            print(f'Error encountered for stock with symbol "{symbol}": {data["Error Message"]} - stock skipped.\n')
+            print(f'Error encountered for stock with symbol "{symbol}" - stock skipped: {data["Error Message"]}\n')
             continue #skip to next symbol
         else :
             dates, opens, closes, lows, highs, volumes = extract_data(data, earliest_date_str, latest_date_str) #get API data as lists that can be unpacked into the SQLite file
