@@ -186,7 +186,7 @@ def period_to_retrieve(latest_date, historical_period) :
     earliest_date_str = earliest_date.strftime('%Y-%m-%d')
     latest_date_str = latest_date.strftime('%Y-%m-%d')
 
-    print(f'Historical information will be retrieved for the time period (YYYY-MM-DD): {earliest_date_str} - {latest_date_str}')
+    print(f'Historical information will be retrieved for the time period (YYYY-MM-DD): {earliest_date_str} - {latest_date_str}\n')
 
     return earliest_date_str, latest_date_str
     
