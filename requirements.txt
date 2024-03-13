@@ -1,9 +1,10 @@
 This program was written in python3.9
 
-The following libraries need to be installed (list updating as project developed):
+The following libraries need to be installed (list updating as project develops):
 BeautifulSoup
 argparse
 datetime
+geopy
 pandas
 relativedelta
 requests
