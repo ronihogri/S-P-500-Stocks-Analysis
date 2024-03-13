@@ -10,6 +10,7 @@ The purpose of this project is to analyze historical data regarding the stocks i
 
   
 ## Workflow
+*See also example screenshots below.
 1. Download the package from the [src folder](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/).
 2. Obtain your own [key](https://www.alphavantage.co/support/#api-key) for the AlphaVantage API. 
 3. Open 'alpha_vantage_key.py' in an editor, and insert your key as a str instead of 'place_your_key_here'.
@@ -17,6 +18,9 @@ The purpose of this project is to analyze historical data regarding the stocks i
 5. (Optional) You may open 'populate_SQL.py' in an editor and modify the User-definable variables as required.  
 6. Run 'populate_SQL.py' - this will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. *Note*: When using the free version of the API, you will be able to retrieve data for up to 25 stocks per day. This means that populating the SQLite file with data for all S&P 500 stocks will require running this script once per day for 21 days. You may want to set your local system to automatically run this script once a day (e.g., by using Task Scheduler in Windows).
 7. *TO BE CONTINUED*  
+
+The package also contains a module ["ticker_to_company"](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/ticker_to_company.py). This module contains a custom class "Company" for retrieving different kinds of information regarding a company based on the ticker symbol of its stock. This can be used, for example, to get features relevant for model training without having to explicitly retrieve them from the SQL database each time. 
+
 
 ## Example screenshots
 Output when running 'populate_SQL.py' for the first time - the program creates a database with 1 table ('Stocks') containing the basic information for all S&P 500 stocks, and then 1 table per stock for storing the historical data obtained from the API: 
