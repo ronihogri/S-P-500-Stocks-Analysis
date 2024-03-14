@@ -145,7 +145,7 @@ def create_sql_table_per_stock(symbols) :
             cur.execute(f"SELECT 1 FROM sqlite_master WHERE type='table' AND name='{symbol}'") #check if table already exists in SQLite file
             if cur.fetchone() is None: #if table does not already exist, create it
                 cur.execute(f'''CREATE TABLE "{symbol}" 
-                (Date TEXT NOT NULL PRIMARY KEY UNIQUE,
+                (Date TEXT PRIMARY KEY,
                 Open FLOAT, Close FLOAT, DailyChange FLOAT,
                 Low FLOAT, High FLOAT, DailyRange FLOAT,
                 Volume INTEGER)''')
