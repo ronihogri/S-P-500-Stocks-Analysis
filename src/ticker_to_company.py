@@ -130,8 +130,42 @@ class Company :
         Returns:
             str: The company's CIK.
         """
+        
         query = f"SELECT CIK FROM {table_name} WHERE Symbol = '{self.symbol}'"
-        return self.fetch_attribute('_CIK', query)    
+        return self.fetch_attribute('_CIK', query) 
+
+    
+    def founded_str(self):
+        """Returns the company's founding info as a str, including comments.
+        
+        Returns:
+            str: The company's founding year + comments if there are any.
+        """
+        
+        query = f"SELECT FOUNDED FROM Stocks WHERE Symbol = '{self.symbol}'"
+        return self.fetch_attribute('_founded_str', query) 
+
+    
+    def founded(self):
+        """Returns the company's founding year as an int.
+        
+        Returns:
+            int: The company's founding year.
+        """
+        
+        self._founded_str = self.founded_str()
+        return int(self._founded_str.strip().split()[0])
+        
+        
+    def first_entry_date(self):
+        """Returns the date of the first data entry for this stock.
+        
+        Returns:
+            str: Date (YYYY-MM-DD) of first data entry for this stock. 
+        """
+        query = f"SELECT MIN(Date) FROM '{self.symbol}'"
+        return self.fetch_attribute('_first_entry_date', query)       
+    
 
 
     def wiki_soup(self) : 
@@ -271,5 +305,3 @@ class Company :
         location = geolocator.geocode(self._hq_location)
         self._coords = (location.latitude, location.longitude) 
         return self._coords 
-
-    
