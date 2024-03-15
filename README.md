@@ -44,7 +44,7 @@ Output when running 'populate_SQL.py' for the first time - the program creates a
    <br><br>Raw price data from 4 stocks. The 2 stocks on the right ('GEHC' and 'KVUE') have been issued recently (in 2023), and therefore their datasets are much shorter. You can adjust your threshold to exclude or include data depending on how much shorter it is than the longest datasets (most stocks included in the S&P 500 have been traded for well over 5 years):
    <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/KVUE%20GEHC%20too%20short.png)<br><br>  
 
-  <br><br>Table showing some of the stock split/consolidation events automatically detected by the program:
+  <br><br>Last lines of the table showing stock split/consolidation events automatically detected by the program:
      <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/split_query2.png)<br><br>
      Below you can see a split event entered manually. This was an unusual 1281:1000 split, which would be very difficult to accurately detect automatically.<br><br>  
 
