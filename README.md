@@ -48,7 +48,7 @@ Output when running 'populate_SQL.py' for the first time - the program creates a
      <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/split_query2.png)<br><br>
      Below you can see a split event entered manually. This was an unusual 1281:1000 split, which would be very difficult to accurately detect automatically.<br><br>  
 
-  <br><br>Plots showing stock prices before and after split adjustments (blue and red lines, respectively). The dashed vertical line shows the date(s) of split events per stock. 
+  <br><br>Plots showing stock prices before and after split adjustments (blue and red lines, respectively). Dashed vertical lines show the date(s) of split events per stock during the examined period. 
        <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/split_adjusted_plots.png)<br><br>
        Note that, for each stock, the blue and red lines converge after the last split adjustment - as would be expected.<br><br>
 
