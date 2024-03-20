@@ -15,13 +15,14 @@ Example:
     company_differet_DB = Company("GOOGL", './different_sqlite_file.sqlite', 'different_table_name')
 
     # Retrieve company name and main market in which the stock is traded:
-    name, market = company.name(), company.market()
+    name, market = company.name, company.market
     
     # Retrieve city and country of company's HQ:
-    city, country = company.hq().city(), company.hq().country()
+    city, country = company.hq().city, company.hq().country    
+    *Note the 'hq' must be used as a method.
     
     # Check if company HQ is located in the USA:
-    in_usa = company.inusa()        
+    in_usa = company.inusa        
   
 '''
 
@@ -89,7 +90,8 @@ class Company :
             setattr(self, attribute_name, 'NA')
         return getattr(self, attribute_name)
      
-
+     
+    @property
     def name(self):
         """Returns the name of the company issuing the stock.
 
@@ -102,6 +104,7 @@ class Company :
         return self._name
         
         
+    @property    
     def sector(self):
         """Returns the business sector in which this company operates.
 
@@ -113,6 +116,7 @@ class Company :
         return self.fetch_attribute('_sector', query)
         
 
+    @property
     def subsector(self):
         """Returns the sub-sector in which this company operates.
 
@@ -123,7 +127,8 @@ class Company :
         query = f"SELECT GICS_Sub_Industry FROM {table_name} WHERE Symbol = '{self.symbol}'"
         return self.fetch_attribute('_subsector', query)
         
-
+    
+    @property
     def CIK(self) :
         """Returns the company's CIK (Central Index Key), as issued by the SEC.
         
@@ -135,6 +140,7 @@ class Company :
         return self.fetch_attribute('_CIK', query) 
 
     
+    @property
     def founded_str(self):
         """Returns the company's founding info as a str, including comments.
         
@@ -146,6 +152,7 @@ class Company :
         return self.fetch_attribute('_founded_str', query) 
 
     
+    @property
     def founded(self):
         """Returns the company's founding year as an int.
         
@@ -153,10 +160,11 @@ class Company :
             int: The company's founding year.
         """
         
-        self._founded_str = self.founded_str()
-        return int(self._founded_str.strip().split()[0])
+        query = f"SELECT FOUNDED FROM Stocks WHERE Symbol = '{self.symbol}'"        
+        return int(self.fetch_attribute('_founded', query).split('(')[0].strip())
         
-        
+    
+    @property
     def first_entry_date(self):
         """Returns the date of the first data entry for this stock.
         
@@ -189,7 +197,8 @@ class Company :
         return self._soup
         
 
-    def market(self) : 
+    @property
+    def market(self) :  #subdef of wiki_soup
         """Returns the main market in which this stock is traded.
 
         This method extracts the main market information from the Wikipedia page
@@ -234,6 +243,7 @@ class Company :
 
     """Subdefs of hq():"""
     
+    @property
     def location(self):
         """ Retrieves the company's HQ location as specified in the SQLite database.
         
@@ -243,6 +253,7 @@ class Company :
         return self._hq_location
     
     
+    @property
     def city(self): 
         """ Retrieves the city in which the company's HQ is located.
         
@@ -251,7 +262,8 @@ class Company :
         """
         return self._hq_location.split(',')[0].strip()
         
-        
+    
+    @property    
     def inusa(self):
         """ Determines if the company's headquarters is located in the United States.
         
@@ -267,6 +279,7 @@ class Company :
         return country == 'United States'
 
     
+    @property
     def state(self):
         """ For US- based companies, returns the state where the company's headquarters is located.
 
@@ -280,7 +293,8 @@ class Company :
         else :
             return 'NA'      
             
-
+    
+    @property
     def country(self):
         """ Retrieves the country in which the company's HQ is located.
         
@@ -294,6 +308,7 @@ class Company :
             return self._hq_location.split(',')[-1].strip()   
 
 
+    @property
     def coords(self):
         """ Retrieves the geographic coordinates (latitude, longitude) of the company's HQ
 
@@ -305,3 +320,5 @@ class Company :
         location = geolocator.geocode(self._hq_location)
         self._coords = (location.latitude, location.longitude) 
         return self._coords 
+
+    
