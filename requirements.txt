@@ -1,12 +1,11 @@
 #This program was written in python3.9
 
 #The following libraries need to be installed (list updating as project develops):
-argparse
+IPython
 bs4
-datetime
 geopy
+matplotlib
+numpy
 pandas
 relativedelta
 requests
-sqlite3
-subprocess
