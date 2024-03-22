@@ -1,8 +1,8 @@
 #This program was written in python3.9
 
 #The following libraries need to be installed (list updating as project develops):
-BeautifulSoup
 argparse
+bs4
 datetime
 geopy
 pandas
