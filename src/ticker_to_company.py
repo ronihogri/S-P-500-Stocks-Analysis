@@ -188,7 +188,7 @@ class Company :
             or 'NA' if the page cannot be accessed.
         """
         
-        name = self._name.replace(" ", "_")
+        name = self.name.replace(" ", "_")
         url = 'https://en.wikipedia.org/wiki/' + name
         r = requests.get(url)
         if r.status_code != 200 : return 'NA'
