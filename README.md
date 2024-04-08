@@ -32,7 +32,7 @@ $ python3 -m pip install -r requirements.txt
 ```console
 python3 src/populate_SQL.py key=mykey
 # Replace 'mykey' with the API key you obtained from AlphaVantage.  
-\# Alternatively, insert your key into alpha_vantage_key.py - this way you won't have to input it for every run.
+# Alternatively, insert your key into alpha_vantage_key.py - this way you won\'t have to input it for every run.
 ```
 This will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. 
 *Note*: When using the free version of the API, you will be able to retrieve data for up to 25 stocks per day. This means that populating the SQLite file with data for all S&P 500 stocks will require running this script once per day for 21 days. You may want to set your local system to automatically run this script once a day (e.g., by using Task Scheduler in Windows).
