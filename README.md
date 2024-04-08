@@ -31,9 +31,10 @@ $ python3 -m pip install -r requirements.txt
 3. Run:
 ```console
 python3 src/populate_SQL.py key=mykey
-# Replace 'mykey' with the API key you obtained from AlphaVantage.  
-# Alternatively, insert your key into alpha_vantage_key.py - this way you won\'t have to input it for every run.
 ```
+* Replace 'mykey' with the API key you obtained from AlphaVantage.  
+* Alternatively, insert your key into alpha_vantage_key.py - this way you will not have to input it every run.
+
 This will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. 
 *Note*: When using the free version of the API, you will be able to retrieve data for up to 25 stocks per day. This means that populating the SQLite file with data for all S&P 500 stocks will require running this script once per day for 21 days. You may want to set your local system to automatically run this script once a day (e.g., by using Task Scheduler in Windows).
 4. Run the [jupyter notebook 'src/preprocessing_googlesearchAPI.ipynb'](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/preprocessing_batches.ipynb) to examine the data and clean it. This includes discarding datasets that are much shorter than others (newly-issued stocks), as well as price adjustment for stock splits and stock consolidation. 'Clean' data is then stored in a dedicated SQLite database. Some example screenshots are shown below. See notebook for full documentation.
