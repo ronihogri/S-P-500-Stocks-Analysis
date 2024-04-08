@@ -8,17 +8,37 @@ Roni Hogri, March 2024.
   
 The purpose of this project is to analyze historical data regarding the stocks included in the S&P 500 index, and make predictions regarding the future performance of these stocks using machine learning. The historical data is obtained using the free version of the RESTful API offered by [AlphaVantage](https://www.alphavantage.co/).  
 
-  
+
+## Installation
+
+```console
+# Clone this repository
+$ git clone https://github.com/ronihogri/S-P-500-Stocks-Analysis.git
+
+# Go to the appropriate directory
+$ cd S-P-500-Stocks-Analysis
+
+# Install requirements
+$ python3 -m pip install -r requirements.txt
+```
+* Note that this project is a work in progress. Therefore, requirements may change as project develops. 
+
 ## Workflow
 *See also example screenshots below.
-1. Download the package from the [src folder](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/).
-2. Obtain your own [key](https://www.alphavantage.co/support/#api-key) for the AlphaVantage API. 
-3. Open 'alpha_vantage_key.py' in an editor, and insert your key as a str instead of 'place_your_key_here'.
-4. Make sure that all modules specified in [requirements.text](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/requirements.txt) are installed.
-5. (Optional) You may open 'populate_SQL.py' in an editor and modify the User-definable variables as required.  
-6. Run 'populate_SQL.py' - this will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. *Note*: When using the free version of the API, you will be able to retrieve data for up to 25 stocks per day. This means that populating the SQLite file with data for all S&P 500 stocks will require running this script once per day for 21 days. You may want to set your local system to automatically run this script once a day (e.g., by using Task Scheduler in Windows).
-7. Run the [preprocessing jupyter notebook](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/preprocessing_googlesearchAPI.ipynb) to examine the data and clean it. This includes discarding datasets that are much shorter than others (newly-issued stocks), as well as price adjustment for stock splits and stock consolidation. Detection of split/consolidation events can be done using Google's search API (more accurate, but slower and requires an API key), or an automatic detection based on sudden changes in stock price (less accurate, fast to execute but requires manual checking and adjustment). 'Clean' data is then stored in a dedicated SQLite database. Some example screenshots are shown below. See notebook for full documentation.  
-8. *TO BE CONTINUED*  
+
+1. Obtain your own [key](https://www.alphavantage.co/support/#api-key) for the AlphaVantage API. 
+2. (Optional) You may open 'populate_SQL.py' in an editor and modify the User-definable variables as required.  
+3. Run:
+```console
+python3 src/populate_SQL.py key=mykey
+# Replace 'mykey' with the API key you obtained from AlphaVantage.  
+# Alternatively, insert your key into alpha_vantage_key.py - this way you won't have to input it for every run.
+```
+This will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. 
+*Note*: When using the free version of the API, you will be able to retrieve data for up to 25 stocks per day. This means that populating the SQLite file with data for all S&P 500 stocks will require running this script once per day for 21 days. You may want to set your local system to automatically run this script once a day (e.g., by using Task Scheduler in Windows).
+4. Run the [jupyter notebook 'src/preprocessing_googlesearchAPI.ipynb'](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/preprocessing_batches.ipynb) to examine the data and clean it. This includes discarding datasets that are much shorter than others (newly-issued stocks), as well as price adjustment for stock splits and stock consolidation. 'Clean' data is then stored in a dedicated SQLite database. Some example screenshots are shown below. See notebook for full documentation.
+*Note*: I'm still working on this part, and the notebook will probably be soon replaced by a python program which requires a Google API key.  
+5. *TO BE CONTINUED*  
 
 The package also contains a module ["ticker_to_company"](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/ticker_to_company.py). This module contains a custom class "Company", which accepts a ticker symbol of a stock, and can be used to retrieve different kinds of information regarding the company issuing this stock (e.g., business sector, geographic location of HQ). This can be used, for example, to get features relevant for model training without having to explicitly retrieve them from the SQL database each time. 
 
@@ -46,7 +66,7 @@ Output when running 'populate_SQL.py' for the first time - the program creates a
 
   <br><br>Last lines of the table showing stock split/consolidation events automatically detected by the program:
      <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/split_query2.png)<br><br>
-     Below you can see a split event entered manually. This was an unusual 1281:1000 split, which would be very difficult to accurately detect automatically based on price changes. However, if you use Google's search API such splits should aslo be automatically detected.<br><br>  
+     Below you can see a split event entered manually. This was an unusual 1281:1000 split, which would be very difficult to accurately detect automatically.<br><br>  
 
   <br><br>Plots showing stock prices before and after split adjustments (blue and red lines, respectively). Dashed vertical lines show the date(s) of split events per stock during the examined period. 
        <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/split_adjusted_plots.png)<br><br>

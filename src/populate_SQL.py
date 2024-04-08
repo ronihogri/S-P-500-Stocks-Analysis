@@ -34,7 +34,7 @@ Note2: Making the historical period very long can result in a large database, as
 depending on their issuing dates. 
 """
 sqlite_file_path = (
-    "./S&P 500.sqlite"  # path of SQLite file created by get_snp_symbols.py
+    "./S&P 500_test.sqlite"  # path of SQLite file created by get_snp_symbols.py
 )
 wikipedia_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"  # URL of wikipedia page containing list of S&P 500 companies
 
@@ -50,14 +50,6 @@ import time
 import sys
 import argparse
 import subprocess
-
-
-try:
-    from alpha_vantage_key import ALPHA_VANTAGE_KEY as key
-except Exception as e:
-    print(
-        f"\nError encountered: {e}\nPlease make sure to insert a valid key string as the value of ALPHA_VANTAGE_KEY in alpha_vantage_key.py in the same directory as this program."
-    )
 
 
 """Globals:"""
@@ -245,11 +237,12 @@ def period_to_retrieve(latest_date, historical_period):
     return earliest_date_str, latest_date_str
 
 
-def get_stock_history_from_api(symbol):
+def get_stock_history_from_api(symbol, key):
     """Requests data from the "TIME_SERIES_DAILY" API provided by alphavantage (up to 25 requests per day for the free version).
 
     Args:
         symbol (str): Symbol of stock for which info is requested.
+        key (str): Alpha Vantage API key.
 
     Returns:
         data (dict): Dict containing the data retrieved from the API.
@@ -352,10 +345,16 @@ def calculate_from_data(tables_with_data):
             print(f"\nError encountered : {e}\n")
 
 
-def main():
+def main(key):
     """Program for retrieving historical stock data for S&P 500 stocks for a specified period, and storing this data in an SQLite database."""
 
     global latest_date_dict, historical_period, sqlite_file_path, wikipedia_url, conn, cur
+
+    if not key:
+        try:
+            from alpha_vantage_key import ALPHA_VANTAGE_KEY as key
+        except Exception as e:
+            print(f"\nError encountered: {e}\nAlpha Vantage API key must be provided.")
 
     scraping_script = "get_snp_symbols.py"  # script to scrape basic info for S&P 500 stocks from wikipedia and store it in the SQLite database
     inserted_count = 0  # counter for tables populated during this run
@@ -385,7 +384,7 @@ def main():
             continue  # skip tables that have already been filled
 
         data = get_stock_history_from_api(
-            symbol
+            symbol, key
         )  # get historical data for this stock from the API
 
         if (
@@ -455,4 +454,16 @@ def main():
 
 """Run program:"""
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Retrieving data for S&P 500 stocks for a specified period, and store data in SQLite database."
+    )
+
+    # Add argument for API key
+    parser.add_argument(
+        "--key", help="API key for accessing stock data from AlphaVantage."
+    )
+
+    # Parse command-line arguments
+    args = parser.parse_args()
+
+    main(args.key)
