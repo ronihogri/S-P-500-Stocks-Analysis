@@ -34,7 +34,7 @@ Note2: Making the historical period very long can result in a large database, as
 depending on their issuing dates. 
 """
 sqlite_file_path = (
-    "./S&P 500_test.sqlite"  # path of SQLite file created by get_snp_symbols.py
+    "./S&P 500.sqlite"  # path of SQLite file created by get_snp_symbols.py
 )
 wikipedia_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"  # URL of wikipedia page containing list of S&P 500 companies
 
@@ -353,8 +353,11 @@ def main(key):
     if not key:
         try:
             from alpha_vantage_key import ALPHA_VANTAGE_KEY as key
-        except Exception as e:
-            print(f"\nError encountered: {e}\nAlpha Vantage API key must be provided.")
+
+            if "your_key" in key:
+                raise Exception("Alpha Vantage API key must be provided.")
+        except:
+            raise Exception("Alpha Vantage API key must be provided.")
 
     scraping_script = "get_snp_symbols.py"  # script to scrape basic info for S&P 500 stocks from wikipedia and store it in the SQLite database
     inserted_count = 0  # counter for tables populated during this run
