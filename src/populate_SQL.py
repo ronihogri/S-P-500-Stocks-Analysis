@@ -14,6 +14,7 @@ https://www.alphavantage.co/support/#support
 **IMPORTANT NOTE:**
 In order for the program to work, you have to get a free API key from: https://www.alphavantage.co/support/#api-key
 This key should be inserted as a string in the file 'alpha_vantage_key.py' instead of 'place_your_key_here'.
+Alternatively, you can add the key as an argument every time you run the program, e.g.: 'python3 populate_SQL.py --key=mykey' .
 """
 
 """User-definable variables; modify as necessary:"""
@@ -33,8 +34,8 @@ Note1: For latest_date_dict and historical_period, the same values should be use
 Note2: Making the historical period very long can result in a large database, as well as differences in data duration for different stocks, 
 depending on their issuing dates. 
 """
-sqlite_file_path = (
-    "./S&P 500.sqlite"  # path of SQLite file created by get_snp_symbols.py
+sqlite_file_name = (
+    "S&P 500.sqlite"  # name of SQLite file created by get_snp_symbols.py
 )
 wikipedia_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"  # URL of wikipedia page containing list of S&P 500 companies
 
@@ -50,9 +51,14 @@ import time
 import sys
 import argparse
 import subprocess
+import os
 
 
 """Globals:"""
+
+#current dir and file paths
+current_dir = os.path.dirname(os.path.abspath(__file__))  # dir of this script
+sqlite_file_path = os.path.join(current_dir, sqlite_file_name)
 
 # connection and cursor for SQLite file:
 conn = sqlite3.connect(sqlite_file_path)
@@ -97,6 +103,7 @@ def get_stock_list_from_sql(scraping_script):
         ):  #'Stocks' table doesn't exist, or is not yet populated - fill it
             # run program to retrieve list of S&P stocks and populate the Stocks table:
             parser = argparse.ArgumentParser()  # for passing vars to subprocess
+
             parser.add_argument(
                 "--sqlite_file_path",
                 help="Path to the SQLite file",
@@ -346,9 +353,18 @@ def calculate_from_data(tables_with_data):
 
 
 def main(key):
-    """Program for retrieving historical stock data for S&P 500 stocks for a specified period, and storing this data in an SQLite database."""
+    """Program for retrieving historical stock data for S&P 500 stocks for a specified period, and storing this data in an SQLite database.
 
-    global latest_date_dict, historical_period, sqlite_file_path, wikipedia_url, conn, cur
+    Args:
+        key (str or None): API key as defined by --key, or None if key was not inputted in command line.
+         
+    Returns:
+        None
+
+    Raises: 
+        Exception: If AlphaVantage API key is not available.
+        sqlite3.OperationalError: If there's an error when working with the SQLite DB.
+     """
 
     if not key:
         try:
@@ -359,7 +375,7 @@ def main(key):
         except:
             raise Exception("Alpha Vantage API key must be provided.")
 
-    scraping_script = "get_snp_symbols.py"  # script to scrape basic info for S&P 500 stocks from wikipedia and store it in the SQLite database
+    scraping_script = os.path.join(current_dir, "get_snp_symbols.py")  # script to scrape basic info for S&P 500 stocks from wikipedia and store it in the SQLite database
     inserted_count = 0  # counter for tables populated during this run
     play_nice = 5  # delay (s) to play nice with API
 
@@ -377,77 +393,85 @@ def main(key):
         latest_date, historical_period
     )  # gets the first and last dates of the historical period based on user preferences
 
-    for symbol in symbols:  # for each stock
+    data = None #default
 
-        cur.execute(
-            f'SELECT COUNT(*) FROM "{symbol}"'
-        )  # check if table contains any data
-        row_count = cur.fetchone()[0]
-        if row_count > 0:
-            continue  # skip tables that have already been filled
+    try:
+        for symbol in symbols:  # for each stock
+            cur.execute(
+                f'SELECT COUNT(*) FROM "{symbol}"'
+            )  # check if table contains any data
+            row_count = cur.fetchone()[0]
+            if row_count > 0:
+                continue  # skip tables that have already been filled
 
-        data = get_stock_history_from_api(
-            symbol, key
-        )  # get historical data for this stock from the API
+            data = get_stock_history_from_api(
+                symbol, key
+            )  # get historical data for this stock from the API
 
-        if (
-            "Information" in data
-        ):  # data not retrieved for this stock - API request limits exceeded - notify user and terminate this program.
-            print(f'\n{data["Information"]}\n')
-            break
-        elif "Error Message" in data:
-            print(
-                f'Error encountered for stock with symbol "{symbol}" - stock skipped: {data["Error Message"]}\n'
-            )
-            continue  # skip to next symbol
-        else:
-            dates, opens, closes, lows, highs, volumes = extract_data(
-                data, earliest_date_str, latest_date_str
-            )  # get API data as lists that can be unpacked into the SQLite file
-
-        while True:
-            try:
-                # unpack raw data from the API to the SQLite database, to be further processed later:
-                cur.executemany(
-                    f"""INSERT INTO "{symbol}" 
-                (Date, Open, Close, Low, High, Volume) VALUES ( ?, ?, ?, ?, ?, ? )""",
-                    [
-                        (Date, Open, Close, Low, High, Volume)
-                        for Date, Open, Close, Low, High, Volume in zip(
-                            dates, opens, closes, lows, highs, volumes
-                        )
-                    ],
-                )
-                inserted_count += 1
-                conn.commit()  # save changes to SQLite file after updating each stock table
-                print(
-                    f'Historical data for stock with symbol "{symbol}" inserted into SQL database.'
-                )
+            if (
+                "Information" in data
+            ):  # data not retrieved for this stock - API request limits exceeded - notify user and terminate this program.
+                print(f'\n{data["Information"]}\n')
                 break
-            except Exception as e:
-                if "database is locked" in str(e):
-                    prompt = input(
-                        "\nCannot update tables while SQLite database is open - please close SQLite file and press ENTER.\t"
+            elif "Error Message" in data:
+                print(
+                    f'Error encountered for stock with symbol "{symbol}" - stock skipped: {data["Error Message"]}\n'
+                )
+                continue  # skip to next symbol
+            else:
+                dates, opens, closes, lows, highs, volumes = extract_data(
+                    data, earliest_date_str, latest_date_str
+                )  # get API data as lists that can be unpacked into the SQLite file
+
+            while True:
+                try:
+                    # unpack raw data from the API to the SQLite database, to be further processed later:
+                    cur.executemany(
+                        f"""INSERT INTO "{symbol}" 
+                    (Date, Open, Close, Low, High, Volume) VALUES ( ?, ?, ?, ?, ?, ? )""",
+                        [
+                            (Date, Open, Close, Low, High, Volume)
+                            for Date, Open, Close, Low, High, Volume in zip(
+                                dates, opens, closes, lows, highs, volumes
+                            )
+                        ],
                     )
-                    continue
-                else:
-                    print(f"\nError encountered : {e}\n")
+                    inserted_count += 1
+                    conn.commit()  # save changes to SQLite file after updating each stock table
+                    print(
+                        f'Historical data for stock with symbol "{symbol}" inserted into SQL database.'
+                    )
                     break
+                except sqlite3.OperationalError as e:
+                    if "database is locked" in str(e):
+                        prompt = input(
+                            "\nCannot update tables while SQLite database is open - please close SQLite file and press ENTER.\t"
+                        )
+                        continue
+                    else:
+                        print(f"\nError encountered : {e}\n")
+                        break
 
-        time.sleep(play_nice)  # play nice with API
+            time.sleep(play_nice)  # play nice with API
 
-    print(
-        f"\nInfo regarding {inserted_count} stocks inserted into SQL database during this run."
-    )
+    except KeyboardInterrupt:
+        print("***Program terminated by user***")
 
-    stock_tables_with_data = get_tables_with_stock_data(symbols)
-    calculate_from_data(stock_tables_with_data)
-    conn.commit()  # save changes to SQLite database
+    finally:
+        if data:
+            print(
+                f"\nInfo regarding {inserted_count} stocks inserted into SQL database during this run."
+            )
 
-    print(
-        f"SQLite database now contains historical data on {len(stock_tables_with_data)} stocks.\n"
-    )
-    conn.close()  # close connection to SQLite file
+            stock_tables_with_data = get_tables_with_stock_data(symbols)
+            calculate_from_data(stock_tables_with_data)
+
+            print(
+                f"SQLite database now contains historical data on {len(stock_tables_with_data)} stocks.\n"
+            )
+            conn.commit()  # save changes to SQLite database
+    
+        conn.close()  # close connection to SQLite file
 
     if len(stock_tables_with_data) == len(
         symbols
@@ -457,16 +481,18 @@ def main(key):
 
 """Run program:"""
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
+    main_parser = argparse.ArgumentParser(
         description="Retrieving data for S&P 500 stocks for a specified period, and store data in SQLite database."
     )
 
-    # Add argument for API key
-    parser.add_argument(
+    # add argument for API key
+    main_parser.add_argument(
         "--key", help="API key for accessing stock data from AlphaVantage."
     )
+    
+    # parse command-line arguments
+    main_args = main_parser.parse_args()
 
-    # Parse command-line arguments
-    args = parser.parse_args()
+    sys.argv = sys.argv[:1] #reset argv before it's used for scraping_script 
 
-    main(args.key)
+    main(main_args.key)

@@ -21,6 +21,12 @@ args = parser.parse_args()
 sqlite_file_path = args.sqlite_file_path #path to sqlite file to be created by this program (passed from the main program)
 url = args.wikipedia_url #URL of wikipedia page containing list of S&P 500 companies
 
+# After retrieving arguments
+print("Arguments received from main program:")
+print("--sqlite_file_path:", sqlite_file_path)
+print("--wikipedia_url:", url)
+
+
 #get content from wikipedia page and parse it:
 content = requests.get(url).content
 soup = BeautifulSoup(content, 'html.parser')

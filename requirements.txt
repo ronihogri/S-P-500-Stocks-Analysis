@@ -1,11 +1,11 @@
-#This program was written in python3.9
+# This program was written in python3.9
 
-#The following libraries need to be installed (list updating as project develops):
+# The following libraries need to be installed (list updating as project develops):
 IPython
 bs4
 geopy
 matplotlib
 numpy
 pandas
-relativedelta
+python-dateutil
 requests
