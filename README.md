@@ -29,7 +29,7 @@ $ python3 -m pip install -r requirements.txt
 1. Obtain your own [key](https://www.alphavantage.co/support/#api-key) for the AlphaVantage API. 
 2. Run populate_SQL.py:
 ```console
-python3 src/populate_SQL.py --key=alphavantage_key
+$ python3 src/populate_SQL.py --key=alphavantage_key
 ```
   This program will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. See screenshots 1-4.
 
@@ -42,7 +42,7 @@ python3 src/populate_SQL.py --key=alphavantage_key
 3. Obtain an [API key for custom Google searches](https://developers.google.com/custom-search/v1/introduction). 
 4. Run get_baseURLs.py:
 ```console
-python3 src/get_baseURLs.py --key=google_api_key
+$ python3 src/get_baseURLs.py --key=google_api_key
 ```
 The purpose of this program is to use a custom Google search engine to retrieve a "base URL" for each stock from https://companiesmarketcap.com/. Base URLs will be stored in the 'Stocks' table of the SQLite database populated by 'populate_SQL.py', and will be used by subsequent programs to retrieve different kinds of information from companiesmarketcap.com. See screenshot 5.
 
@@ -53,7 +53,7 @@ The purpose of this program is to use a custom Google search engine to retrieve 
 * In order to avoid wasting API calls on unusable data, stocks with a too-short history (i.e., newly issued companies) will be excluded from further steps. You can adjust what is considered "too short" in the "user-definable variables" before running the program (optional).
 5. Run data_adjustments.py:
 ```console
-python3 src/data_adjustments.py
+$ python3 src/data_adjustments.py
 ```
 This program pre-processes the raw historical data obtained from AlphaVantage. Specifically, it performs stock price adjustments for stock splits, stock consolidations (AKA reverse splits), and dividend payments. See screenshots 6-8.
 
@@ -92,9 +92,9 @@ Therefore, the split-adjusted DB will be used for most subsequent analyses, whil
 6. Example console outputs after running data_adjustments.py:
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/end_data_adjustment_console.png)<br><br>
 
-7. Content of SQLite file storing info about stock price adjustments (heads of 3 tables shown side-by-side):
+7. Content of SQLite file used to record stock price adjustments (left to right: heads of 'Adjustments', 'Splits', and 'Dividends' tables):
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/adjustment_sql.png)<br><br>
 
-8. A selection of subplots showing raw stock price data (blue line), split- and/or dividend-adjusted stock price (red line), and adjustment events (dividends: green circles, circle size represents ratio between stock price and dividend amount; stock consolidation/split: purple/black vertical dashed lines, respectively):
+8. A selection of subplots showing raw stock price data (blue lines), split- and/or dividend-adjusted stock price (red lines), and adjustment events (dividends: green circles, circle size represents ratio between stock price and dividend amount; stock consolidation/split: purple/black vertical dashed lines, respectively):
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/example_adjustment_plots.png)<br><br>
 
