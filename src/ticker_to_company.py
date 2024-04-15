@@ -28,6 +28,7 @@ Example:
 
 sqlite_file_name = "S&P 500.sqlite"  # default sqlite database
 table_name = "Stocks"
+record_file_name = "S&P 500_record.sqlite" #file containing info on adjustements, created by 'data_adjustments.py'
 
 # required libraries
 import sqlite3
@@ -43,18 +44,21 @@ geolocator = Nominatim(
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sqlite_file_path = os.path.join(current_dir, sqlite_file_name)
+record_file_path = os.path.join(current_dir, record_file_name)
 play_nice = 0.5  # duration (s) to wait after requests from online resources, in case multiple requests are made in succession
 
 
 class Company:
     """A class representing a company with methods to retrieve various attributes and information."""
 
-    def __init__(self, symbol, sql_path=sqlite_file_path, table=table_name):
+    def __init__(self, symbol, sql_path=sqlite_file_path, table=table_name, record=record_file_path):
         """Initializes a Company object with the provided symbol and connects to the SQLite database.
 
         Args:
             symbol (str): The company's ticker.
-            sql_path (str, optional): The path to the SQLite database file. Defaults to './S&P 500.sqlite'.
+            sql_path (str, optional): The path to the SQLite database file containing the Stocks table (created by 'populate_SQL.py').
+            table (str, optional): The name of the table in sql_path to look in (default is Stocks table). 
+            record (str, optional): The path to the SQLite file containing adjustment info (created by 'data_adjustments.py')
 
         Returns:
             None
@@ -81,10 +85,17 @@ class Company:
             f"SELECT Symbol FROM {table_name} WHERE Symbol = '{self.symbol}'"
         )
         symbol_exists = self.cur.fetchone()
-        if symbol_exists is None:
+        if not symbol_exists:
             raise ValueError(
                 f"Symbol '{self.symbol}' does not exist in the '{table_name}' table in {sql_path}."
             )
+        if os.path.exists(record):
+            self.record = record
+            self.conn_record = sqlite3.connect(self.record)
+            self.cur_record = self.conn_record.cursor()
+        else: 
+            self.record = None
+
 
     def fetch_attribute(self, attribute_name, query):
         """Fetches an attribute of the company from the SQLite database using the provided SQL query.
@@ -102,7 +113,7 @@ class Company:
         if result is not None:
             setattr(self, attribute_name, result[0])
         else:
-            setattr(self, attribute_name, "NA")
+            setattr(self, attribute_name, None)
         return getattr(self, attribute_name)
 
     @property
@@ -140,6 +151,24 @@ class Company:
             f"SELECT GICS_Sub_Industry FROM {table_name} WHERE Symbol = '{self.symbol}'"
         )
         return self.fetch_attribute("_subsector", query).strip()
+
+    @property
+    def sector_all(self):
+        """Returns info about sector, sub-sector, and competitors in each.
+        
+        Returns:
+            self._sector_all (dict): A dictionary with the following keys: sector, subsector. 
+                Each item contains a dictionary with the items name:str, and competitors:list of tuples (symbol, name)
+        """
+
+        self._sector_all = {"sector": {"name": self.sector, "competitors": None}, "subsector": {"name": self.subsector, "competitors": None}}
+        self.cur.execute("SELECT Symbol, Security FROM Stocks WHERE GICS_Sector = ? AND Symbol != ?", (self.sector, self.symbol))
+        self._sector_all["sector"]["competitors"] = self.cur.fetchall()
+        self.cur.execute("SELECT Symbol, Security FROM Stocks WHERE GICS_Sub_Industry = ? AND Symbol != ?", (self.subsector, self.symbol))
+        self._sector_all["subsector"]["competitors"] = self.cur.fetchall()
+
+        return self._sector_all        
+        
 
     @property
     def CIK(self):
@@ -215,7 +244,7 @@ class Company:
 
         Returns:
             BeautifulSoup object: Parsed HTML content of the Wikipedia page,
-            or 'NA' if the page cannot be accessed.
+            or None if the page cannot be accessed.
         """
 
         name = self.name.replace(" ", "_")
@@ -225,7 +254,7 @@ class Company:
             r = requests.get(url)
             time.sleep(play_nice)
             if r.status_code != 200:
-                return "NA"
+                return None
             self._soup = BeautifulSoup(r.content, "html.parser")
 
             # first, check if this is a disambiguation page:
@@ -242,7 +271,7 @@ class Company:
                     new_url = "https://en.wikipedia.org/" + href
                     return self.wiki_soup(url=new_url)
         except:
-            return "NA"
+            return None
 
     @property
     def market(self):  # subdef of wiki_soup
@@ -255,11 +284,11 @@ class Company:
 
         Returns:
             str: The main market in which this stock is traded,
-            or 'NA' if the information is not available or cannot be retrieved.
+            or None if the information is not available or cannot be retrieved.
         """
         soup = self.wiki_soup()
-        if (soup == "NA") or (soup is None):
-            return "NA"
+        if not soup:
+            return None
         results = soup("table", attrs={"class": "infobox vcard"})
         for result in results:
             hrefs = result(href=True)
@@ -327,14 +356,15 @@ class Company:
         """For US- based companies, returns the state where the company's headquarters is located.
 
         Returns:
-            str: The state name if the headquarters is in the United States, otherwise 'NA'.
+            str: The state name if the headquarters is in the United States*.
+            None if hq is not in USA. 
         *I am aware that many other countries have states too, this is just how the wikipedia table (and therefore the 'Stocks' table) is organized...
         """
 
         if self.inusa():
             return self._hq_location.split(",")[-1].strip()
         else:
-            return "NA"
+            return None
 
     @property
     def country(self):
@@ -354,7 +384,7 @@ class Company:
         """Retrieves the geographic coordinates (latitude, longitude) of the company's HQ
 
         Returns:
-            A tuple containing 2 float elements: (latitude, longitude), as retrieved by the geolocator.
+            self._coords (tuple): A tuple containing 2 float elements: (latitude, longitude), as retrieved by the geolocator.
 
         """
 
@@ -362,3 +392,76 @@ class Company:
         time.sleep(play_nice)
         self._coords = (location.latitude, location.longitude)
         return self._coords
+    
+    
+    @property
+    def adjustments(self):
+        """Returns the available adjustments for this stock (split and or/dividend), as performed by 'data_adjustments.py'.
+        
+        Returns:
+            dict: holds True/False for adjustments made, e.g., {splits:False, dividends:False} (no adjustements made).
+            or None: If 'data_adjustments.py' was not run on this stock (or at all).
+        """
+
+        if not self.record: #record file does not exist
+            print("Could not find adjustment records. You must first pre-process data using 'data_adjustments.py' before you can access this property.")
+            return None
+        self.cur_record.execute("SELECT Split, Dividend FROM Adjustments WHERE Symbol = ?", (self.symbol, ))
+        query_result = self.cur_record.fetchone()
+        if not query_result or None in query_result:
+            print(f"Warning: Adjustment record missing or incomplete for stock with symbol '{self.symbol}'!")
+            return None
+        self._adjustments = {'splits': False, 'dividends': False} #default values (no adjustments made)
+        if query_result[0] == 1:
+            self._adjustments['splits'] = True
+        if query_result[1] == 1:
+            self._adjustments['dividends'] = True
+        return self._adjustments
+    
+    @property    
+    def splits(self):
+        """Returns the split/consolidation record for this stock within the historical period (if exists), as retrieved by 'data_adjustments.py'.
+        
+        Returns:
+            list: List of tuples containing (split date as str, split ratio as float).
+            or None: If 'data_adjustments.py' was not run on this stock (or at all). 
+        """
+
+        if not self.record: #record file does not exist
+            print("Could not find adjustment records. You must first pre-process data using 'data_adjustments.py' before you can access this property.")
+            return None
+        
+        self.cur_record.execute("SELECT Split FROM Adjustments WHERE Symbol = ?", (self.symbol, ))
+        query_result = self.cur_record.fetchone()
+        if not query_result or query_result[0] is None:  
+            print(f"Warning: Split adjustment record for stock with symbol '{self.symbol}' does not exist!")
+            return None
+
+        self.cur_record.execute("SELECT Date, SR_Float FROM Splits WHERE Symbol = ?", (self.symbol, ))
+        return self.cur_record.fetchall() #return list of tuples with split info
+        
+    @property    
+    def dividends(self):
+        """Returns the dividend payment record for this stock within the historical period (if exists), as retrieved by 'data_adjustments.py'.
+        
+        Returns:
+            list: List of tuples containing (dividend date as str, dividend $ amount as float, dividend/stock price ratio as float).
+            or None: If 'data_adjustments.py' was not run on this stock (or at all). 
+        """
+
+        if not self.record: #record file does not exist
+            print("Could not find adjustment records. You must first pre-process data using 'data_adjustments.py' before you can access this property.")
+            return None
+        
+        self.cur_record.execute("SELECT Dividend FROM Adjustments WHERE Symbol = ?", (self.symbol, ))
+        query_result = self.cur_record.fetchone()
+        if not query_result or query_result[0] is None: 
+            print(f"Warning: Dividend adjustment record for stock with symbol '{self.symbol}' does not exist!")
+            return None
+        
+        self.cur_record.execute("SELECT Date, CAST(SUBSTR(Dividend, 2) AS FLOAT), DivPriceRatio FROM Dividends WHERE Symbol = ?", (self.symbol, ))            
+        return self.cur_record.fetchall() #return list of tuples with dividend info
+                
+
+
+
