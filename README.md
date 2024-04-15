@@ -83,7 +83,7 @@ Therefore, the split-adjusted DB will be used for most subsequent analyses, whil
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/stocks_list_sql.png)<br><br>  
 
     
-4. An example of a table containinig historical data (5 year period) for the stock with the symbol 'GOOGL' (table head and tail are shown on the left and right, respectively; DailyChange refers to change in % compared to the previous day):  
+4. An example of a table containinig historical data (5 year period) for the stock with the symbol 'GOOGL' (table head and tail are shown on the left and right, respectively; DailyChange refers to change in % during the day - open vs close prices):  
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/example_GOOGL.png)<br><br>  
 
 5. Example console output after running get_baseURLs.py:
