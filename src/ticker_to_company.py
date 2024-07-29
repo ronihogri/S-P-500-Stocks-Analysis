@@ -85,10 +85,19 @@ class Company:
             f"SELECT Symbol FROM {table_name} WHERE Symbol = '{self.symbol}'"
         )
         symbol_exists = self.cur.fetchone()
+
         if not symbol_exists:
-            raise ValueError(
-                f"Symbol '{self.symbol}' does not exist in the '{table_name}' table in {sql_path}."
-            )
+            self.cur.execute(f"SELECT Symbol FROM {table_name} WHERE Security LIKE '%{self.symbol}%'")
+            company_exists = self.cur.fetchall()
+
+            if company_exists:
+                symbols = [symbol[0] for symbol in company_exists]
+                print(f"Company symbol(s): {symbols}. Using '{symbols[0]}' as symbol.")
+                self.symbol = symbols[0]
+            else:
+                raise ValueError(
+                    f"Symbol '{self.symbol}' does not exist in the '{table_name}' table in {sql_path}."
+                )
         if os.path.exists(record):
             self.record = record
             self.conn_record = sqlite3.connect(self.record)
@@ -227,13 +236,24 @@ class Company:
 
     @property
     def first_entry_date(self):
-        """Returns the date of the first data entry for this stock.
+        """Returns the date of the first (oldest) data entry for this stock.
 
         Returns:
             str: Date (YYYY-MM-DD) of first data entry for this stock.
         """
         query = f"SELECT MIN(Date) FROM '{self.symbol}'"
         return self.fetch_attribute("_first_entry_date", query)
+    
+    @property
+    def last_entry_date(self):
+        """Returns the date of the most recent data entry for this stock.
+
+        Returns:
+            str: Date (YYYY-MM-DD) of most recent data entry for this stock.
+        """
+        query = f"SELECT MAX(Date) FROM '{self.symbol}'"
+        return self.fetch_attribute("_first_entry_date", query)
+    
 
     def wiki_soup(self, url=None):
         """Retrieves information about the company from Wikipedia.

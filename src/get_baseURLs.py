@@ -22,7 +22,7 @@ will be excluded from further steps. You can adjust what is considered "too shor
 batch_size = 60  # number of stocks to handle each time you run the program.
 # set batch_size to None to go through all of your existing data in one batch (as much as possible depending on the type of your Google API key).
 
-min_duration_ratio = 0.5 # minimal allowed length of timeseries as a fraction of the maximal timeseries.
+min_duration_ratio = 0.9 # minimal allowed length of timeseries as a fraction of the maximal timeseries.
 # (for discarding stocks that have been traded for less than a certain duration from further consideration).
 
 sqlite_file_name = "S&P 500.sqlite"  # name of SQLite DB file containing raw data (produced by 'populate_SQL.py')

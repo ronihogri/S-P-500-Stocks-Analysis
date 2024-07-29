@@ -110,8 +110,8 @@ def copy_stocks_table():
         # create the table in the clean database
         cur_split.execute(create_table_sql)
 
-        # copy data from source table to destination table
-        cur.execute("SELECT * FROM Stocks")
+        # copy data from source table to destination table (skip class A stocks)
+        cur.execute("SELECT * FROM Stocks WHERE Security NOT LIKE '%Class A%'")
         rows = cur.fetchall()
         cur_split.executemany(
             f"INSERT INTO Stocks VALUES ({','.join(['?'] * len(rows[0]))})", rows
