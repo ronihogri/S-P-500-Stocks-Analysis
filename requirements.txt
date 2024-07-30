@@ -3,9 +3,16 @@
 # The following libraries need to be installed (list updating as project develops):
 IPython
 bs4
+datetime
 geopy
+keras_tuner
 matplotlib
 numpy
 pandas
+pickle
 python-dateutil
 requests
+seaborn
+sklearn
+sqlite3
+tensorflow
