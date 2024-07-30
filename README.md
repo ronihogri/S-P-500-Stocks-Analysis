@@ -128,7 +128,7 @@ This demo program attempts to predict stock price changes in the next OUTPUT_WIN
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_subsector.png)  
 ![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_feature_correlations.png)<br><br>
 
-13. Figures showing model predictions vs actual prices for 'DHR' for all data splits (top: training; middle: validation; bottom: test): 
+13. Figures showing model predictions (5 days per prediction) vs actual prices for 'DHR' for all data splits (top: training; middle: validation; bottom: test): 
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_predictions_training.png)  
 ![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_predictions_validation.png)  
 ![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_predictions_test.png)<br><br>
