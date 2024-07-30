@@ -131,7 +131,9 @@ import keras_tuner as kt
 #dirs and paths:
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # dir of this script
 PROJECT_DIR = os.path.join(CURRENT_DIR, 'LSTM_demo', f'{INPUT_WINDOW_SIZE}_{OUTPUT_WINDOW_SIZE}')
-STOCK_TRACKER_PATH = os.path.join(PROJECT_DIR, 'stock_prediction_tracker.csv') #file for storing info on stocks for which predictions have already been made   
+STOCK_TRACKER_PATH = os.path.join(PROJECT_DIR, 'stock_prediction_tracker.csv') #CSV file for storing info on stocks for which predictions have already been made   
+STOCK_TRACKER_COLUMNS = ['Symbol', 'Company Name', 'Subsector', 'Last Training', 'Mean Training RMSE (scaled)', 
+    'Mean Validation RMSE (scaled)', 'Test RMSE (scaled)'] #columns in stock tracker
 TUNER_DIR = os.path.join(PROJECT_DIR, 'tuner')
 MODEL_DIR = os.path.join(PROJECT_DIR, 'model')
 RESULTS_DIR = os.path.join(PROJECT_DIR, 'results')
@@ -156,12 +158,14 @@ def get_stocks_subsector():
                             Initially None (unless altered by user), then assigned a value by this function.
         MAIN_DB_FP (str): File path to the main database.
         STOCK_TRACKER_PATH (str): File path to the stock tracker CSV file.
+        STOCK_TRACKER_COLUMNS (list): Headers (str) of stock tracker CSV file. 
 
     Returns:
         already_done (list): List containing 2 lists [stock symbols, subsectors] of previously-modeled stocks.
         company (ticker_to_company.Company): Instance of the custom class Company.
         subsector (list): List of stock symbols (str) in the subsector.
         subsector_name (str): Name of the subsector.
+        tracker_df (pd.DataFrame): df holding info from stock tracker file, or an empty df with headers if tracker file not yet exists.
     """
 
     global master_stock #if master_stock is None (default at the beginning of each run), its value is assigned in this function
@@ -173,10 +177,8 @@ def get_stocks_subsector():
             cur = conn.cursor()
             if os.path.exists(STOCK_TRACKER_PATH): #there is already a file for tracking for which stocks predictions were already made
                 #look at stock prediction tracker
-                with open(STOCK_TRACKER_PATH, 'r') as file:
-                    lines = file.read().split("\n")
-                #create list containing 2 lists [stock symbols, subsectors] of previously-modeled stocks
-                already_done = [[line.split(',')[0].strip() for line in lines[1:] if line], [line.split(',')[2].strip() for line in lines[1:] if line]]    
+                tracker_df = pd.read_csv(STOCK_TRACKER_PATH)
+                already_done = [tracker_df['Symbol'].to_list(), tracker_df['Subsector'].to_list()]
                 last_subsector = already_done[1][-1] #last subsector for which a prediction has been made
 
                 #find the next stock in the subsector for which predictions have not already been made:
@@ -197,13 +199,13 @@ def get_stocks_subsector():
             else: #prediction tracker does not yet exist (first stock handled by this program)
                 cur.execute("SELECT Symbol FROM Stocks ORDER BY Symbol")
                 master_stock = cur.fetchone()[0]
-
+                tracker_df = pd.DataFrame(columns=STOCK_TRACKER_COLUMNS)
 
     company = Company(master_stock) #instance of Company class for master_stock
     subsector = [master_stock] + [tup[0] for tup in company.sector_all['subsector']['competitors']] #list symbols of stocks within subsector
     subsector_name = company.sector_all['subsector']['name'] 
             
-    return already_done, company, subsector, subsector_name
+    return tracker_df, already_done, company, subsector, subsector_name
 
 
 def make_main_df(subsector):
@@ -1331,10 +1333,11 @@ def plot_predictions_errors(train_rmses, val_rmses, test_rmse, scaled_test_rmse,
     fig.savefig(fig_path, bbox_inches='tight') #save figure
 
 
-def update_tracker(company, subsector_name, scaled_train_rmses, scaled_val_rmses, scaled_test_rmse):
+def update_tracker(tracker_df, company, subsector_name, scaled_train_rmses, scaled_val_rmses, scaled_test_rmse):
     """Updates the tracker CSV file to document that predictions have been made for the master stock.  
 
     Args:
+        tracker_df (pd.DataFrame): df holding info from stock tracker file.
         company (ticker_to_company.Company): Instance of the custom class Company, representing the company with the stock symbol master_stock.
         subsector_name (str): Name of the subsector.
         scaled_train_rmses (dict): Scaled RMSE values for each day in the predicted sequence (training split).
@@ -1346,30 +1349,28 @@ def update_tracker(company, subsector_name, scaled_train_rmses, scaled_val_rmses
         scaled_test_rmse (float): RMSE value for the test split predictions, scaled.
 
     Globals:
-        STOCK_TRACKER_PATH (str): File path to the stock tracker CSV file.
         master_stock (str): Symbol of stock for which the predictions were made in the current run. 
+        STOCK_TRACKER_PATH (str): File path to the stock tracker CSV file.
+        STOCK_TRACKER_COLUMNS (list): Headers (str) of stock tracker CSV file. 
 
     Returns:
         None
     """
 
-    #if stock tracker path does not yet exist, headers will be inserted in the first row
-    if not os.path.exists(STOCK_TRACKER_PATH): 
-        write_headers = True
-    else: 
-        write_headers = False
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S') #timestamp for completing work on this stock (now)
 
-    #add stock data to the tracker file
-    with open(STOCK_TRACKER_PATH, 'a') as file:
-        if write_headers: #add headers if necessary
-            file.write('Symbol, Company Name, Subsector, Last Training, Mean Training RMSE (scaled), Mean Validation RMSE (scaled), Test RMSE (scaled)\n')
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S') #timestamp for completing work on this stock (now)
-        file.write( #single row containing info for this stock
-            f'{master_stock}, {company.name}, {subsector_name}, {now}, {np.mean(list(scaled_train_rmses.values()))},' 
-            f'{np.mean(list(scaled_val_rmses.values()))}, {scaled_test_rmse}\n'
-            ) 
+    #add info re current master stock to stock tracker df
+    tracker_df.loc[len(tracker_df)] = [master_stock, company.name, subsector_name, now, np.mean(list(scaled_train_rmses.values())),
+                                       np.mean(list(scaled_val_rmses.values())), scaled_test_rmse]
+    
+    #update tracker CSV file
+    tracker_df.to_csv(STOCK_TRACKER_PATH, index=False)
 
-    print(f"\n*** Program completed successfully for stock with symbol '{master_stock}' - stock tracker CSV file updated ***\n\n\n")
+    print(f"""\n
+***************************************************************************************************************
+Program completed successfully for stock with symbol '{master_stock}' - stock tracker CSV file updated:
+{STOCK_TRACKER_PATH}
+***************************************************************************************************************\n\n\n""")
 
 
 def main():
@@ -1377,7 +1378,7 @@ def main():
 
     try:
         #get the next stock to make predictions for ("master stock")
-        already_done, company, subsector, subsector_name = get_stocks_subsector()
+        tracker_df, already_done, company, subsector, subsector_name = get_stocks_subsector()
 
         #make subdirs containing files for this master stock:
         for main_dir in (TUNER_DIR, MODEL_DIR, RESULTS_DIR, FIG_DIR):
@@ -1429,7 +1430,7 @@ def main():
         plot_predictions_errors(train_rmses, val_rmses, test_rmse, scaled_test_rmse, predictions)
 
         #document that this program was successfully completed for the current master stock (next run will run on next stock)
-        update_tracker(company, subsector_name, scaled_train_rmses, scaled_val_rmses, scaled_test_rmse)
+        update_tracker(tracker_df, company, subsector_name, scaled_train_rmses, scaled_val_rmses, scaled_test_rmse)
 
     except KeyboardInterrupt:
         raise KeyboardInterrupt("\n****Program terminated by user****\n")
