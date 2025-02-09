@@ -9,6 +9,10 @@ This project is meant to demonstrate various techniques used for automated data 
 
 *Disclaimer*: This is a demo project, and as such contains a limited dataset and simplified software. The tools provided in this repository should *not* be used as-is for financial decision-making! 
 
+P.S. Check out this [related project](https://github.com/ronihogri/financial-doc-reader), which uses the OpenAI API to extract data from quarterly and yearly filings submitted with the SEC. 
+<br><br>
+
+
 ## Installation
 
 ```console
@@ -86,11 +90,7 @@ This demo program attempts to predict stock price changes in the next OUTPUT_WIN
 
 
 **Note:** The package also contains a module ["ticker_to_company"](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/ticker_to_company.py). This module contains a custom class "Company", which accepts a ticker symbol of a stock, and can be used to retrieve different kinds of information regarding the company issuing this stock (e.g., business sector, geographic location of HQ). This can be used, for example, to get features relevant for model training without having to explicitly retrieve them from the SQL database each time. 
-
-
-**Note:** Check out this [related project](https://github.com/ronihogri/financial-doc-reader), which uses the OpenAI API to extract data from quarterly and yearly filings submitted to the SEC. 
-
-
+<br><br>
 
 
 ## Figures
