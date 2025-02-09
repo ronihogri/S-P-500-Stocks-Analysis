@@ -1,13 +1,13 @@
 # S&P 500 Stocks Analysis
-S&amp;P 500 stocks analysis - RESTful API, SQLite, data preprocessing, data analysis, visualization, and ML-based predictions with python.  
-Roni Hogri, March 2024.  
+Roni Hogri, March 2024. 
 
-  
-## ---*THIS PROJECT IS A WORK IN PROGRESS*---
+**Keywords**: RESTful API, SQLite, data preprocessing, data analysis, visualization, and ML-based predictions with python.  
+ 
 
-  
-The purpose of this project is to analyze historical data regarding the stocks included in the S&P 500 index, and make predictions regarding the future performance of these stocks using machine learning. The historical data is obtained using the free version of the RESTful API offered by [AlphaVantage](https://www.alphavantage.co/).  
+## Why This Project  
+This project is meant to demonstrate various techniques used for automated data extraction, storage, preprocessing, analysis, and machine learning-derived predictions in the context of stock market data (specifically, S&P 500 stocks). I chose to focus on stock price data because it is widely available and easily understandable for most people. 
 
+*Disclaimer*: This is a demo project, and as such contains a limited dataset and simplified software. The tools provided in this repository should *not* be used as-is for financial decision-making! 
 
 ## Installation
 
@@ -21,12 +21,12 @@ $ cd S-P-500-Stocks-Analysis
 # Install requirements
 $ python3 -m pip install -r requirements.txt
 ```
-* Note that this project is a work in progress. Therefore, requirements may change as project develops. 
+
 
 ## Workflow
 #### **See also figures below**
 
-1. Obtain your own [key](https://www.alphavantage.co/support/#api-key) for the AlphaVantage API. 
+1. Historical data is obtained using the free version of the RESTful API offered by [AlphaVantage](https://www.alphavantage.co/). To work with this API, you must obtain your own [key](https://www.alphavantage.co/support/#api-key). 
 2. Run populate_SQL.py:
 ```console
 $ python3 src/populate_SQL.py --key=alphavantage_key
@@ -82,10 +82,15 @@ This demo program attempts to predict stock price changes in the next OUTPUT_WIN
 
 * The program creates 4 folders under the project folder (default: "./LSTM_demo/50_20/"): 'figures', 'results', 'tuner' and 'model'. Each of these folders is populated with a folder for each master stock (named after the stock's ticker symbol). The 'figures' folder contains plots showing how the master stock relates to its subsector, as well as figures showing prediction results. The 'results' folder contains CSV files containing results of subsector correlations, predictions, and prediction errors (as root mean squared errors, or RMSEs). The 'tuner' folder contains files used by the program for hyperparameter tuning. Once a model is fitted on the master stock's data, the 'model' folder contains files that potentially allow the user to reuse the trained model rather than creating a new one. Note that if you want to re-tune and/or re-fit the model, you would have to delete the master stock's folder within the 'tuner' and/or 'model' folders, respectively.  
 
-7. ...*In progress*... Get financial report values from quarterly and yearly forms submitted to the SEC (using the EDGAR system), to later use them (or values that require them for calculation) as predictors for stock price. Since these forms can have quite variable structures and subfields, I utilized the OpenAI API in order to use ChatGPT-4o to extract values from forms - this is not perfect, but it generally works (and I added some optimization steps). It will take me some time to integrate this into a working program that populates a SQL DB and then uses the distilled values in a predictive model; in the meantime, see the draft jupyter notebook ["report_info_chatGPT-API_test"](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/report_info_chatGPT-API_test.ipynb).
+7. ...*Additional analyses coming soonish*... 
 
 
 **Note:** The package also contains a module ["ticker_to_company"](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/src/ticker_to_company.py). This module contains a custom class "Company", which accepts a ticker symbol of a stock, and can be used to retrieve different kinds of information regarding the company issuing this stock (e.g., business sector, geographic location of HQ). This can be used, for example, to get features relevant for model training without having to explicitly retrieve them from the SQL database each time. 
+
+
+**Note:** Check out this [related project](https://github.com/ronihogri/financial-doc-reader), which uses the OpenAI API to extract data from quarterly and yearly filings submitted to the SEC. 
+
+
 
 
 ## Figures
@@ -126,7 +131,7 @@ This demo program attempts to predict stock price changes in the next OUTPUT_WIN
 11. Example console output showing the tuning summary, and the resulting model starting to be trained: 
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/tuning_end_model_summary.png)<br><br>
 
-12. Figures showing how the example master stock ('DHR') relates to its subsector (top: scaled prices for all subsector stock + scaled trading volume for 'DHR'; bottom: scatter plots and histograms showing correlations between potential features and within-feature distributions, respectively): 
+12. Figures showing how the example master stock ('DHR') relates to its subsector (top: scaled prices for all subsector stocks + scaled trading volume for 'DHR'; bottom: scatter plots and histograms showing correlations between potential features and within-feature distributions, respectively): 
 <br><br>![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_subsector.png)  
 ![](https://github.com/ronihogri/S-P-500-Stocks-Analysis/blob/main/images/DHR%20example/DHR_feature_correlations.png)<br><br>
 
