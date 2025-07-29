@@ -23,7 +23,7 @@ $ git clone https://github.com/ronihogri/S-P-500-Stocks-Analysis.git
 $ cd S-P-500-Stocks-Analysis
 
 # Install requirements
-$ python3 -m pip install -r requirements.txt
+$ python -m pip install -r requirements.txt
 ```
 
 
@@ -33,7 +33,7 @@ $ python3 -m pip install -r requirements.txt
 1. Historical data is obtained using the free version of the RESTful API offered by [AlphaVantage](https://www.alphavantage.co/). To work with this API, you must obtain your own [key](https://www.alphavantage.co/support/#api-key). 
 2. Run populate_SQL.py:
 ```console
-$ python3 src/populate_SQL.py --key=alphavantage_key
+$ python src/populate_SQL.py --key=alphavantage_key
 ```
   This program will retrieve basic information regarding the 500+ stocks comprising the S&P 500 index, and start populating an SQLite database with the historical record for each stock for the selected time period. See screenshots in figures 1-4.
 
@@ -46,7 +46,7 @@ $ python3 src/populate_SQL.py --key=alphavantage_key
 3. Obtain an [API key for custom Google searches](https://developers.google.com/custom-search/v1/introduction). 
 4. Run get_baseURLs.py:
 ```console
-$ python3 src/get_baseURLs.py --key=google_api_key
+$ python src/get_baseURLs.py --key=google_api_key
 ```
 The purpose of this program is to use a custom Google search engine to retrieve a "base URL" for each stock from https://companiesmarketcap.com/. Base URLs will be stored in the 'Stocks' table of the SQLite database populated by 'populate_SQL.py', and will be used by subsequent programs to retrieve different kinds of information from companiesmarketcap.com. See screenshot in figure 5.
 
@@ -57,7 +57,7 @@ The purpose of this program is to use a custom Google search engine to retrieve 
 * In order to avoid wasting API calls on unusable data, stocks with a too-short history (i.e., newly issued companies) will be excluded from further steps. You can adjust what is considered "too short" in the "user-definable variables" before running the program (optional).
 5. Run data_adjustments.py:
 ```console
-$ python3 src/data_adjustments.py
+$ python src/data_adjustments.py
 ```
 This program pre-processes the raw historical data obtained from AlphaVantage. Specifically, it performs stock price adjustments for stock splits, stock consolidations (AKA reverse splits), and dividend payments. See figures 6-8.
 
@@ -70,7 +70,7 @@ Therefore, the split-adjusted DB will be used for most subsequent analyses, whil
 
 6. Run stock_price_prediction_demo_LSTM.py:
 ```console
-$ python3 src/stock_price_prediction_demo_LSTM.py
+$ python src/stock_price_prediction_demo_LSTM.py
 ```  
 This demo program attempts to predict stock price changes in the next OUTPUT_WINDOW_SIZE days based on the behavior of predictors during the previous INPUT_WINDOW_SIZE days. For this, a TensorFlow Sequential() model containing a long short-term memory layer (hereafter: 'LSTM model') is used. Figures 9-11 show screenshots of the program. Figures 12-14 show example results from one stock for which reasonably good predictions were obtained (Danaher Corporation, symbol:'DHR'). 
 
