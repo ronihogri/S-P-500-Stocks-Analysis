@@ -11,5 +11,5 @@ pandas
 python-dateutil
 requests
 seaborn
-sklearn
+scikit-learn
 tensorflow
